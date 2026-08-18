@@ -1,0 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --primary: #0F8B52; /* Deep green */
+  --primary-light: #E7F9F0;
+  --primary-border: #BCEADA;
+  
+  --danger: #D12E34; /* Red */
+  --danger-light: #FCEDEE;
+  --danger-border: #F3C4C6;
+  
+  --warning: #C17711; /* Orange */
+  --warning-light: #FFF8EB;
+  --warning-border: #FBE2B2;
+
+  --info: #0056B3; /* Blue */
+  --info-light: #EBF4FF;
+  --info-border: #BBD6FE;
+  
+  --surface: #FFFFFF;
+  --background: #1A2130; /* Dark background for the page outside mobile */
+  
+  --text-main: #1D1D1D;
+  --text-muted: #6B7280;
+  
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 24px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--background);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* Mobile Container */
+#app {
+  width: 100%;
+  max-width: 414px; /* iPhone Max width approx */
+  background-color: #F8F9FA;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-height: 850px;
+}
