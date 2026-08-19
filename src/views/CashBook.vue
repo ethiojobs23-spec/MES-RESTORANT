@@ -8,7 +8,7 @@
               <h1>Daily CashBook</h1>
               <span>iPhone Mobile Ledger</span>
             </div>
-            <div class="header-badge">₹ 15,000 Res.</div>
+            <div class="header-badge">₹ {{ reserveSettings.current.toLocaleString() }} Res.</div>
           </header>
 
           <div v-if="activeTab === 'home'" class="view-panel home-panel">
@@ -21,45 +21,45 @@
               </button>
             </div>
 
-            <div class="alert-box">
+            <div class="alert-box" v-if="unexpectedPercentage > reserveSettings.threshold">
               <div class="alert-icon">!</div>
               <div class="alert-copy">
                 <strong>High Unexpected Expenses Alert!</strong>
-                <small>Unexpected expenses are at 18.5% of total monthly expenses.</small>
+                <small>Unexpected expenses are at {{ unexpectedPercentage }}% of total expenses.</small>
               </div>
             </div>
 
             <div class="summary-block">
               <div class="mini-header">
                 <span>TODAY'S FINANCIAL SUMMARY</span>
-                <span>08/17/2026</span>
+                <span>{{ todayDateString }}</span>
               </div>
 
               <div class="metrics-grid">
                 <div class="metric-item">
                   <label>Revenue Today</label>
-                  <strong>13,000 ETB</strong>
+                  <strong>{{ todayRevenue.toLocaleString() }} ETB</strong>
                 </div>
                 <div class="metric-item">
                   <label>Expenses Today</label>
-                  <strong class="danger">6,500 ETB</strong>
+                  <strong class="danger">{{ todayExpense.toLocaleString() }} ETB</strong>
                 </div>
               </div>
 
-              <div class="net-result">
-                <span>Today's Net Result</span>
-                <strong>6,500 ETB</strong>
+              <div class="net-result" :class="{ 'positive-bg': todayRevenue >= todayExpense, 'negative-bg': todayRevenue < todayExpense }">
+                <span>Today's Net Result ({{ todayRevenue >= todayExpense ? 'PROFIT' : 'LOSS' }})</span>
+                <strong>{{ (todayRevenue - todayExpense).toLocaleString() }} ETB</strong>
               </div>
             </div>
 
             <div class="info-row">
               <div class="info-box">
-                <label>Unspent Today</label>
-                <strong>1,200 ETB</strong>
+                <label>Unexpected Today</label>
+                <strong>{{ todayUnexpected.toLocaleString() }} ETB</strong>
               </div>
               <div class="info-box">
                 <label>Emergency Reserve</label>
-                <strong>15,000 ETB</strong>
+                <strong>{{ reserveSettings.current.toLocaleString() }} ETB</strong>
               </div>
             </div>
 
@@ -78,24 +78,24 @@
               </div>
               <div class="reserve-meta">
                 <span>Progress: 30%</span>
-                <span>Target: 50,000 ETB</span>
+                <span>Target: {{ reserveSettings.target.toLocaleString() }} ETB</span>
               </div>
             </div>
 
             <div class="stats-strip">
               <div class="stat-box">
-                <span>This week</span>
-                <strong>13,000</strong>
+                <span>All time</span>
+                <strong>{{ totalRevenue.toLocaleString() }}</strong>
                 <small>Rev</small>
               </div>
               <div class="stat-box">
-                <span>This week</span>
-                <strong>4,500</strong>
+                <span>All time</span>
+                <strong>{{ totalExpense.toLocaleString() }}</strong>
                 <small>Exp</small>
               </div>
               <div class="stat-box">
-                <span>This week</span>
-                <strong>6,500</strong>
+                <span>All time</span>
+                <strong>{{ (totalRevenue - totalExpense).toLocaleString() }}</strong>
                 <small>Profit</small>
               </div>
             </div>
@@ -257,34 +257,34 @@
               </div>
               <div class="progress-wrap">
                 <div class="progress-bar">
-                  <span style="width: 30%"></span>
+                  <span :style="{ width: reserveProgress + '%' }"></span>
                 </div>
               </div>
               <div class="reserve-meta two-line">
                 <div>
-                  <span>Progress: 30%</span>
-                  <span>Target: 50,000 ETB</span>
+                  <span>Progress: {{ reserveProgress }}%</span>
+                  <span>Target: {{ reserveSettings.target.toLocaleString() }} ETB</span>
                 </div>
                 <div>
                   <span>Current Reserve</span>
-                  <strong>15,000 ETB</strong>
+                  <strong>{{ reserveSettings.current.toLocaleString() }} ETB</strong>
                 </div>
               </div>
             </div>
 
             <div class="field-group small-form">
               <label>Target Reserve (ETB)</label>
-              <input type="text" value="50000" />
+              <input type="number" v-model.number="reserveSettings.target" />
             </div>
 
             <div class="field-group small-form">
               <label>Current Reserve (ETB)</label>
-              <input type="text" value="15000" />
+              <input type="number" v-model.number="reserveSettings.current" />
             </div>
 
             <div class="field-group small-form">
               <label>Unexpected Wiring Threshold (%)</label>
-              <input type="text" value="10" />
+              <input type="number" v-model.number="reserveSettings.threshold" />
             </div>
 
             <button class="save-btn dark-btn" @click="saveReserveSettings">SAVE RESERVE SETTINGS</button>
@@ -293,10 +293,11 @@
               <div class="recorded-head">
                 <span>Recorded Unexpected Expenses</span>
               </div>
-              <div class="recorded-item">
-                <span>Emergency repair (Emergency repair)</span>
-                <strong>-1,200 ETB</strong>
+              <div class="recorded-item" v-for="item in unexpectedExpenses" :key="item.id">
+                <span>{{ item.title }} ({{ item.note || 'No note' }})</span>
+                <strong>-{{ item.amount }} ETB</strong>
               </div>
+              <div v-if="unexpectedExpenses.length === 0" style="padding: 10px; font-size: 0.6rem; color: #9aa5b1; text-align: center;">No unexpected expenses recorded.</div>
             </div>
           </div>
 
@@ -332,15 +333,15 @@
             <div class="report-metrics">
               <div class="report-row">
                 <span>Total Revenue</span>
-                <strong>13,000 ETB</strong>
+                <strong>{{ totalRevenue.toLocaleString() }} ETB</strong>
               </div>
               <div class="report-row">
                 <span>Expenses</span>
-                <strong>6,500 ETB</strong>
+                <strong>{{ totalExpense.toLocaleString() }} ETB</strong>
               </div>
-              <div class="report-row highlight-row">
-                <span>Overall Net Profit</span>
-                <strong>6,500 ETB</strong>
+              <div class="report-row highlight-row" :class="{ 'positive-bg': totalRevenue >= totalExpense, 'negative-bg': totalRevenue < totalExpense }">
+                <span>Overall Net Result</span>
+                <strong>{{ (totalRevenue - totalExpense).toLocaleString() }} ETB</strong>
               </div>
             </div>
 
@@ -412,7 +413,12 @@ export default {
         { key: 'revenue', label: 'Revenue', icon: '↗' },
         { key: 'unexpected', label: 'Unexpected', icon: '⚠' },
         { key: 'reports', label: 'Reports', icon: '▣' }
-      ]
+      ],
+      reserveSettings: {
+        target: 50000,
+        current: 15000,
+        threshold: 10
+      }
     }
   },
   mounted() {
@@ -432,6 +438,40 @@ export default {
       const exp = this.expenses.map(e => ({ ...e, isExpense: true, title: e.expense_from, amount: e.amount, dateObj: new Date(e.created_at) }))
       const rev = this.revenues.map(r => ({ ...r, isExpense: false, title: r.product_service, amount: r.total_revenue, dateObj: new Date(r.created_at) }))
       return [...exp, ...rev].sort((a, b) => b.dateObj - a.dateObj)
+    },
+    totalRevenue() {
+      return this.revenues.reduce((sum, r) => sum + parseFloat(r.total_revenue || 0), 0)
+    },
+    totalExpense() {
+      return this.expenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0)
+    },
+    totalUnexpected() {
+      return this.expenses.filter(e => e.expense_type === 'Unexpected').reduce((sum, e) => sum + parseFloat(e.amount || 0), 0)
+    },
+    unexpectedExpenses() {
+      return this.expenses.filter(e => e.expense_type === 'Unexpected').map(e => ({ ...e, title: e.expense_from, amount: e.amount, dateObj: new Date(e.created_at) })).sort((a, b) => b.dateObj - a.dateObj)
+    },
+    todayRevenue() {
+      const todayStr = new Date().toISOString().split('T')[0]
+      return this.revenues.filter(r => r.date === todayStr).reduce((sum, r) => sum + parseFloat(r.total_revenue || 0), 0)
+    },
+    todayExpense() {
+      const todayStr = new Date().toISOString().split('T')[0]
+      return this.expenses.filter(e => e.date === todayStr).reduce((sum, e) => sum + parseFloat(e.amount || 0), 0)
+    },
+    todayUnexpected() {
+      const todayStr = new Date().toISOString().split('T')[0]
+      return this.expenses.filter(e => e.date === todayStr && e.expense_type === 'Unexpected').reduce((sum, e) => sum + parseFloat(e.amount || 0), 0)
+    },
+    reserveProgress() {
+      return Math.min(100, Math.round((this.reserveSettings.current / this.reserveSettings.target) * 100)) || 0;
+    },
+    unexpectedPercentage() {
+       if (this.totalExpense === 0) return 0;
+       return ((this.totalUnexpected / this.totalExpense) * 100).toFixed(1);
+    },
+    todayDateString() {
+      return new Date().toLocaleDateString();
     }
   },
   methods: {
@@ -906,6 +946,16 @@ export default {
 
 .positive {
   color: #0d8b6d;
+}
+
+.negative-bg {
+  background: #fdf3f3 !important;
+  color: #d95555 !important;
+}
+
+.positive-bg {
+  background: #0d8b6d !important;
+  color: #ffffff !important;
 }
 
 .form-panel {
