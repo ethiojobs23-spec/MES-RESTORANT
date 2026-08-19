@@ -287,8 +287,8 @@
             </div>
 
             <div class="export-box">
-              <button class="export-btn">Export to CSV Spreadsheet</button>
-              <button class="export-btn light-btn">Download Complete Backup (.json)</button>
+              <button class="export-btn" @click="exportCSV">Export to CSV Spreadsheet</button>
+              <button class="export-btn light-btn" @click="exportJSON">Download Complete Backup (.json)</button>
             </div>
           </div>
         </div>
@@ -348,6 +348,33 @@ export default {
     openModal(type) {
       this.modalType = type
       this.goTo(type)
+    },
+    exportCSV() {
+      const csvContent = "Date,Type,Category,Amount\n2026-08-19,Revenue,Food,500\n2026-08-19,Expense,Supply,200";
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", "export.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    },
+    exportJSON() {
+      const data = {
+        transactions: [
+          { date: "2026-08-19", type: "Revenue", category: "Food", amount: 500 },
+          { date: "2026-08-19", type: "Expense", category: "Supply", amount: 200 }
+        ]
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", "backup.json");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   }
 }

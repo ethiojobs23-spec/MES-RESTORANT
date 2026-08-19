@@ -1,9 +1,0 @@
-window.WIZ_global_data = {"AEJOSc":false,"ARR9x":true,"AfY8Hf":true,"Ajsvkd":true,"B7TsWc":"","BdA8rf":true,"CVUPx":false,"DEh2U":false,"DedwT":true,"Di4zjc":false,"DnVkpd":"Generate an image of a futuristic car driving through an old mountain road surrounded by nature∞https://www.gstatic.com/lamda/images/landing/a/i18n/en/m4_8k4pzPQk7S3pZbpBoOe5t.jpg∞https://www.gstatic.com/lamda/images/landing/a/i18n/en/ma4_aGFj00iXnaxSvfE0mItTt.png∞Sure, here is an image of a futuristic car driving through an
-
----
-
-var _F_cssRowKey = 'boq-bard-web.BardChatUi.tYBDuzCI7Tw.L.B1.O';var _F_combinedSignature = 'AL3bBk0t5si1BQk0TY2ymUG77z7n6knM-w';function _DumpException(e) {throw e;}
-
----
-
-;this.gbar_={CONFIG:[[[0,"www.gstatic.com","og.qtm.en_US.1XWJXUlYvhk.2019.O","com.et","en","658",0,[4,2,"","","","965682502","0"],null,"PpOEat73DuKnjfYP7rmHyAk",null,0,"og.qtm.8iibR_VTNAo.L.W.O","AA2YrTvi59RQ6u6bH649CP9TyvyZ-AZE1Q","AA2YrTvhavHc_5TUTFiGUMBQhET_neaHtQ","",2,1,200,"ETH",null,null,"269","658",1,null,null,103135050,null,0,0,0,0],null,[1,0.1000000014901161,2,1],null,[0,0,0,null,"","","","",0,0,null,"",1,"","https://lh3.googleusercontent.com/ogw/default-user=s83"],[0,0,"",1,0,0,0,0,0,
