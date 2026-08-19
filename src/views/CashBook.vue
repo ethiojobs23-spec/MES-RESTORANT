@@ -348,6 +348,9 @@
             <div class="export-box">
               <button class="export-btn" @click="exportCSV">Export to CSV Spreadsheet</button>
               <button class="export-btn light-btn" @click="exportJSON">Download Complete Backup (.json)</button>
+              <div style="margin-top: 30px;">
+                <button class="export-btn dark-btn" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #9aa5b1;" @click="changePasscode">Change App Passcode</button>
+              </div>
             </div>
           </div>
         </div>
@@ -421,6 +424,7 @@ export default {
       }
     }
   },
+  inject: ['triggerPinReset'],
   mounted() {
     this.fetchData();
   },
@@ -553,6 +557,13 @@ export default {
     saveReserveSettings() {
       alert('Reserve settings saved securely!');
       this.goHome();
+    },
+    changePasscode() {
+      if (confirm('Are you sure you want to reset your passcode? You will be asked to create a new one.')) {
+        if (this.triggerPinReset) {
+          this.triggerPinReset();
+        }
+      }
     },
     exportCSV() {
       const csvContent = "Date,Type,Category,Amount\n2026-08-19,Revenue,Food,500\n2026-08-19,Expense,Supply,200";

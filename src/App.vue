@@ -27,6 +27,11 @@
 <script>
 export default {
   name: 'App',
+  provide() {
+    return {
+      triggerPinReset: this.triggerPinReset
+    }
+  },
   data() {
     return {
       isAuthenticated: false,
@@ -37,6 +42,12 @@ export default {
     }
   },
   methods: {
+    triggerPinReset() {
+      this.expectedPin = null;
+      this.setupMode = true;
+      this.isAuthenticated = false;
+      localStorage.removeItem('app_pin');
+    },
     addPin(num) {
       if (this.pin.length < 6) {
         this.pin += num;
