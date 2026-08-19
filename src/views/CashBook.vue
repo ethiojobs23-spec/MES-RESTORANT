@@ -103,13 +103,17 @@
             <div class="transactions-box">
               <div class="transactions-head">
                 <span>Recent Transactions</span>
-                <button>View All Ledger</button>
+                <button @click="goTo('ledger')">View All Ledger</button>
               </div>
 
               <ul>
-                <li><span>Siga</span><strong class="negative">-3,500 ETB</strong></li>
-                <li><span>Zeyit</span><strong class="negative">-1,800 ETB</strong></li>
-                <li><span>Emergency repair</span><strong class="negative">-1,200 ETB</strong></li>
+                <li v-for="tx in allTransactions.slice(0, 3)" :key="tx.id">
+                  <span>{{ tx.title }}</span>
+                  <strong :class="{ negative: tx.isExpense, positive: !tx.isExpense }">
+                    {{ tx.isExpense ? '-' : '+' }}{{ tx.amount }} ETB
+                  </strong>
+                </li>
+                <li v-if="allTransactions.length === 0" class="empty-state">No recent transactions.</li>
               </ul>
             </div>
           </div>
@@ -296,6 +300,29 @@
             </div>
           </div>
 
+          <div v-else-if="activeTab === 'ledger'" class="view-panel form-panel">
+            <div class="form-header">
+              <button class="form-icon-btn">▤</button>
+              <h2>All Ledger</h2>
+              <button class="cancel-link" @click="goHome">Close</button>
+            </div>
+            
+            <div class="transactions-box" style="margin-top: 10px; height: 380px; overflow-y: auto;">
+              <ul>
+                <li v-for="tx in allTransactions" :key="tx.id">
+                  <div style="display: flex; flex-direction: column; gap: 2px;">
+                    <span>{{ tx.title }}</span>
+                    <small style="color: #9aa5b1; font-size: 0.55rem;">{{ new Date(tx.date).toLocaleDateString() }}</small>
+                  </div>
+                  <strong :class="{ negative: tx.isExpense, positive: !tx.isExpense }">
+                    {{ tx.isExpense ? '-' : '+' }}{{ tx.amount }} ETB
+                  </strong>
+                </li>
+                <li v-if="allTransactions.length === 0" class="empty-state">No transactions yet.</li>
+              </ul>
+            </div>
+          </div>
+
           <div v-else-if="activeTab === 'reports'" class="view-panel reports-panel">
             <div class="form-header compact-header">
               <button class="form-icon-btn">◌</button>
@@ -398,7 +425,13 @@ export default {
       if (path === '/revenue') return 'revenue'
       if (path === '/unexpected') return 'unexpected'
       if (path === '/reports') return 'reports'
+      if (path === '/ledger') return 'ledger'
       return 'home'
+    },
+    allTransactions() {
+      const exp = this.expenses.map(e => ({ ...e, isExpense: true, title: e.expense_from, amount: e.amount, dateObj: new Date(e.created_at) }))
+      const rev = this.revenues.map(r => ({ ...r, isExpense: false, title: r.product_service, amount: r.total_revenue, dateObj: new Date(r.created_at) }))
+      return [...exp, ...rev].sort((a, b) => b.dateObj - a.dateObj)
     }
   },
   methods: {
@@ -408,7 +441,8 @@ export default {
         expense: '/expense',
         revenue: '/revenue',
         unexpected: '/unexpected',
-        reports: '/reports'
+        reports: '/reports',
+        ledger: '/ledger'
       }
       this.$router.push(map[tab])
       this.modalType = null
@@ -864,6 +898,10 @@ export default {
 
 .negative {
   color: #d95555;
+}
+
+.positive {
+  color: #0d8b6d;
 }
 
 .form-panel {

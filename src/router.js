@@ -7,6 +7,7 @@ const routes = [
   { path: '/revenue', component: CashBook, meta: { title: 'Revenue' } },
   { path: '/unexpected', component: CashBook, meta: { title: 'Unexpected' } },
   { path: '/reports', component: CashBook, meta: { title: 'Reports' } },
+  { path: '/ledger', component: CashBook, meta: { title: 'Ledger' } },
   { path: '/:pathMatch(.*)*', redirect: '/' }
 ]
 
