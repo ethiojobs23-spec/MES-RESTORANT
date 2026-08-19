@@ -124,14 +124,14 @@
             <div class="field-group">
               <label>Date</label>
               <div class="input-wrap date-wrap">
-                <input type="text" value="08/17/2026" />
+                <input type="date" v-model="expenseForm.date" />
                 <span>📅</span>
               </div>
             </div>
 
             <div class="field-group">
               <label>Expense From</label>
-              <select>
+              <select v-model="expenseForm.expense_from">
                 <option>Kibe</option>
                 <option>Travel</option>
                 <option>Rent</option>
@@ -140,23 +140,33 @@
 
             <div class="field-group">
               <label>Amount (ETB)</label>
-              <input type="text" placeholder="e.g. 1500" />
+              <input type="number" v-model.number="expenseForm.amount" placeholder="e.g. 1500" />
             </div>
 
             <div class="field-group radio-group">
               <label>Expense Type</label>
               <div class="chip-row">
-                <button class="chip active">Planned Expense</button>
-                <button class="chip">Unexpected</button>
+                <button 
+                  :class="['chip', { active: expenseForm.expense_type === 'Planned Expense' }]" 
+                  @click="expenseForm.expense_type = 'Planned Expense'">
+                  Planned Expense
+                </button>
+                <button 
+                  :class="['chip', { active: expenseForm.expense_type === 'Unexpected' }]" 
+                  @click="expenseForm.expense_type = 'Unexpected'">
+                  Unexpected
+                </button>
               </div>
             </div>
 
             <div class="field-group">
               <label>Note (Optional)</label>
-              <input type="text" placeholder="e.g. Staff purchase" />
+              <input type="text" v-model="expenseForm.note" placeholder="e.g. Staff purchase" />
             </div>
 
-            <button class="save-btn">SAVE EXPENSE</button>
+            <button class="save-btn" @click="saveExpense" :disabled="isSaving">
+              {{ isSaving ? 'SAVING...' : 'SAVE EXPENSE' }}
+            </button>
           </div>
 
           <div v-else-if="activeTab === 'revenue'" class="view-panel form-panel">
@@ -169,14 +179,14 @@
             <div class="field-group">
               <label>Date</label>
               <div class="input-wrap date-wrap">
-                <input type="text" value="08/17/2026" />
+                <input type="date" v-model="revenueForm.date" />
                 <span>📅</span>
               </div>
             </div>
 
             <div class="field-group">
               <label>Product / Service</label>
-              <select>
+              <select v-model="revenueForm.product_service">
                 <option>General Sales</option>
                 <option>Service Fee</option>
                 <option>Subscription</option>
@@ -186,25 +196,27 @@
             <div class="field-group three-col">
               <div>
                 <label>Quantity</label>
-                <input type="text" value="1" />
+                <input type="number" v-model.number="revenueForm.quantity" />
               </div>
               <div>
                 <label>Unit Price (ETB)</label>
-                <input type="text" value="6,500" />
+                <input type="number" v-model.number="revenueForm.unit_price" />
               </div>
             </div>
 
             <div class="field-group calc-row">
               <label>Calculated Revenue</label>
-              <strong>0 ETB</strong>
+              <strong>{{ (revenueForm.quantity * revenueForm.unit_price) || 0 }} ETB</strong>
             </div>
 
             <div class="field-group">
               <label>Customer / Note (Optional)</label>
-              <input type="text" placeholder="e.g. Cash sale" />
+              <input type="text" v-model="revenueForm.customer_note" placeholder="e.g. Cash sale" />
             </div>
 
-            <button class="save-btn">SAVE REVENUE</button>
+            <button class="save-btn" @click="saveRevenue" :disabled="isSaving">
+              {{ isSaving ? 'SAVING...' : 'SAVE REVENUE' }}
+            </button>
           </div>
 
           <div v-else-if="activeTab === 'unexpected'" class="view-panel unexpected-panel">
@@ -310,6 +322,23 @@ export default {
   data() {
     return {
       modalType: null,
+      expenses: [],
+      revenues: [],
+      isSaving: false,
+      expenseForm: {
+        date: new Date().toISOString().split('T')[0],
+        expense_from: 'Kibe',
+        amount: '',
+        expense_type: 'Planned Expense',
+        note: ''
+      },
+      revenueForm: {
+        date: new Date().toISOString().split('T')[0],
+        product_service: 'General Sales',
+        quantity: 1,
+        unit_price: '',
+        customer_note: ''
+      },
       navigationTabs: [
         { key: 'home', label: 'Home', icon: '⌂' },
         { key: 'expense', label: 'Expense', icon: '↘' },
@@ -318,6 +347,9 @@ export default {
         { key: 'reports', label: 'Reports', icon: '▣' }
       ]
     }
+  },
+  mounted() {
+    this.fetchData();
   },
   computed: {
     activeTab() {
@@ -349,28 +381,73 @@ export default {
       this.modalType = type
       this.goTo(type)
     },
+    async fetchData() {
+      try {
+        const [expRes, revRes] = await Promise.all([
+          fetch('/api/expenses').then(r => r.json()),
+          fetch('/api/revenues').then(r => r.json())
+        ]);
+        this.expenses = Array.isArray(expRes) ? expRes : [];
+        this.revenues = Array.isArray(revRes) ? revRes : [];
+      } catch (err) {
+        console.error('Error fetching data:', err);
+      }
+    },
+    async saveExpense() {
+      if (!this.expenseForm.amount) return alert('Please enter an amount.');
+      this.isSaving = true;
+      try {
+        await fetch('/api/expenses', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(this.expenseForm)
+        });
+        alert('Expense saved successfully!');
+        this.expenseForm.amount = '';
+        this.expenseForm.note = '';
+        this.fetchData();
+        this.goHome();
+      } catch (err) {
+        alert('Error saving expense.');
+      } finally {
+        this.isSaving = false;
+      }
+    },
+    async saveRevenue() {
+      if (!this.revenueForm.unit_price) return alert('Please enter a unit price.');
+      this.isSaving = true;
+      try {
+        await fetch('/api/revenues', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(this.revenueForm)
+        });
+        alert('Revenue saved successfully!');
+        this.revenueForm.unit_price = '';
+        this.revenueForm.customer_note = '';
+        this.fetchData();
+        this.goHome();
+      } catch (err) {
+        alert('Error saving revenue.');
+      } finally {
+        this.isSaving = false;
+      }
+    },
     exportCSV() {
       const csvContent = "Date,Type,Category,Amount\n2026-08-19,Revenue,Food,500\n2026-08-19,Expense,Supply,200";
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement("a");
-      const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
+      link.setAttribute("href", URL.createObjectURL(blob));
       link.setAttribute("download", "export.csv");
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     },
     exportJSON() {
-      const data = {
-        transactions: [
-          { date: "2026-08-19", type: "Revenue", category: "Food", amount: 500 },
-          { date: "2026-08-19", type: "Expense", category: "Supply", amount: 200 }
-        ]
-      };
+      const data = { expenses: this.expenses, revenues: this.revenues };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const link = document.createElement("a");
-      const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
+      link.setAttribute("href", URL.createObjectURL(blob));
       link.setAttribute("download", "backup.json");
       document.body.appendChild(link);
       link.click();
