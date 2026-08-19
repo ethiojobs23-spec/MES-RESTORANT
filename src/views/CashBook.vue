@@ -593,24 +593,25 @@ export default {
 <style scoped>
 .cashbook-page {
   min-height: 100vh;
-  background: #0c1d31;
+  background: #f3f2f2;
   display: flex;
   flex-direction: column;
   color: #15314f;
+  width: 100vw;
+  overflow-x: hidden;
 }
 
 .stage {
   flex: 1;
   display: flex;
-  align-items: stretch;
-  justify-content: stretch;
   padding: 0;
+  width: 100%;
 }
 
 .phone-shell {
   width: 100%;
   display: flex;
-  justify-content: stretch;
+  flex: 1;
 }
 
 .app-card {
