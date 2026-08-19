@@ -457,15 +457,15 @@ export default {
     },
     todayRevenue() {
       const todayStr = new Date().toISOString().split('T')[0]
-      return this.revenues.filter(r => r.date === todayStr).reduce((sum, r) => sum + parseFloat(r.total_revenue || 0), 0)
+      return this.revenues.filter(r => r.date.split('T')[0] === todayStr).reduce((sum, r) => sum + parseFloat(r.total_revenue || 0), 0)
     },
     todayExpense() {
       const todayStr = new Date().toISOString().split('T')[0]
-      return this.expenses.filter(e => e.date === todayStr).reduce((sum, e) => sum + parseFloat(e.amount || 0), 0)
+      return this.expenses.filter(e => e.date.split('T')[0] === todayStr).reduce((sum, e) => sum + parseFloat(e.amount || 0), 0)
     },
     todayUnexpected() {
       const todayStr = new Date().toISOString().split('T')[0]
-      return this.expenses.filter(e => e.date === todayStr && e.expense_type === 'Unexpected').reduce((sum, e) => sum + parseFloat(e.amount || 0), 0)
+      return this.expenses.filter(e => e.date.split('T')[0] === todayStr && e.expense_type === 'Unexpected').reduce((sum, e) => sum + parseFloat(e.amount || 0), 0)
     },
     reserveProgress() {
       return Math.min(100, Math.round((this.reserveSettings.current / this.reserveSettings.target) * 100)) || 0;
