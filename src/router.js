@@ -1,14 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from './views/Home.vue'
-import Report from './views/Report.vue'
-import Food from './views/Food.vue'
-import Menu from './views/Menu.vue'
+import CashBook from './views/CashBook.vue'
 
 const routes = [
-  { path: '/', component: Home, meta: { title: 'Home' } },
-  { path: '/report', component: Report, meta: { title: 'Report' } },
-  { path: '/food', component: Food, meta: { title: 'Food' } },
-  { path: '/menu', component: Menu, meta: { title: 'Menu' } },
+  { path: '/', component: CashBook, meta: { title: 'Home' } },
+  { path: '/expense', component: CashBook, meta: { title: 'Expense' } },
+  { path: '/revenue', component: CashBook, meta: { title: 'Revenue' } },
+  { path: '/unexpected', component: CashBook, meta: { title: 'Unexpected' } },
+  { path: '/reports', component: CashBook, meta: { title: 'Reports' } },
+  { path: '/food', redirect: '/' },
+  { path: '/report', redirect: '/reports' },
+  { path: '/menu', redirect: '/' },
+  { path: '/:pathMatch(.*)*', redirect: '/' }
 ]
 
 const router = createRouter({
@@ -16,9 +18,8 @@ const router = createRouter({
   routes
 })
 
-// Update page title
 router.afterEach((to) => {
-  document.title = `${to.meta.title || 'Page'} - Enu Food House`
+  document.title = `${to.meta.title || 'Page'} - Daily CashBook`
 })
 
 export default router
