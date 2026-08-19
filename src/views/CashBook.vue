@@ -502,9 +502,10 @@ export default {
     async fetchData() {
       try {
         const API_BASE = 'https://mesrestorant.vercel.app'; // Update this if your Vercel URL is different
+        const timestamp = Date.now();
         const [expRes, revRes] = await Promise.all([
-          fetch(`${API_BASE}/api/expenses`).then(r => r.json()),
-          fetch(`${API_BASE}/api/revenues`).then(r => r.json())
+          fetch(`${API_BASE}/api/expenses?t=${timestamp}`).then(r => r.json()),
+          fetch(`${API_BASE}/api/revenues?t=${timestamp}`).then(r => r.json())
         ]);
         this.expenses = Array.isArray(expRes) ? expRes : [];
         this.revenues = Array.isArray(revRes) ? revRes : [];
@@ -601,33 +602,33 @@ export default {
 .stage {
   flex: 1;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px 0 16px;
+  align-items: stretch;
+  justify-content: stretch;
+  padding: 0;
 }
 
 .phone-shell {
   width: 100%;
   display: flex;
-  justify-content: center;
+  justify-content: stretch;
 }
 
 .app-card {
   width: 100%;
-  max-width: 320px;
-  min-height: 520px;
+  max-width: 100%;
+  min-height: 100vh;
   background: #f3f2f2;
-  border-radius: 16px 16px 12px 12px;
+  border-radius: 0;
   padding: 0;
   position: relative;
-  box-shadow: 0 22px 40px rgba(0, 0, 0, 0.25);
+  box-shadow: none;
 }
 
 .app-header {
   background: linear-gradient(180deg, #0d8b6d 0%, #0a7d64 100%);
   color: white;
   padding: 12px 14px 10px;
-  border-radius: 16px 16px 0 0;
+  border-radius: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
