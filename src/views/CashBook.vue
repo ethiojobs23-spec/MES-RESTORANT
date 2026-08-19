@@ -497,9 +497,10 @@ export default {
     },
     async fetchData() {
       try {
+        const API_BASE = 'https://mes-restorant.vercel.app'; // Update this if your Vercel URL is different
         const [expRes, revRes] = await Promise.all([
-          fetch('/api/expenses').then(r => r.json()),
-          fetch('/api/revenues').then(r => r.json())
+          fetch(`${API_BASE}/api/expenses`).then(r => r.json()),
+          fetch(`${API_BASE}/api/revenues`).then(r => r.json())
         ]);
         this.expenses = Array.isArray(expRes) ? expRes : [];
         this.revenues = Array.isArray(revRes) ? revRes : [];
@@ -511,7 +512,8 @@ export default {
       if (!this.expenseForm.amount) return alert('Please enter an amount.');
       this.isSaving = true;
       try {
-        await fetch('/api/expenses', {
+        const API_BASE = 'https://mes-restorant.vercel.app';
+        await fetch(`${API_BASE}/api/expenses`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(this.expenseForm)
@@ -531,7 +533,8 @@ export default {
       if (!this.revenueForm.unit_price) return alert('Please enter a unit price.');
       this.isSaving = true;
       try {
-        await fetch('/api/revenues', {
+        const API_BASE = 'https://mes-restorant.vercel.app';
+        await fetch(`${API_BASE}/api/revenues`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(this.revenueForm)

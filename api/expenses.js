@@ -1,6 +1,17 @@
 import { neon } from '@neondatabase/serverless';
 
 export default async function handler(req, res) {
+  // CORS Headers for Capacitor / Mobile App
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
   // Initialize the Neon client using the DATABASE_URL environment variable
   const sql = neon(process.env.DATABASE_URL);
 
