@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Enu Food House</string>
+    <string name="title_activity_main">Enu Food House</string>
+    <string name="package_name">com.enufoodhouse.app</string>
+    <string name="custom_url_scheme">com.enufoodhouse.app</string>
+</resources>
