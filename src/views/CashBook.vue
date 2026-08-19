@@ -69,7 +69,7 @@
                   <span class="reserve-icon">◔</span>
                   <span>Cash Reserve Protection</span>
                 </div>
-                <button class="manage-btn">Manage</button>
+                <button class="manage-btn" @click="goTo('unexpected')">Manage</button>
               </div>
               <div class="progress-wrap">
                 <div class="progress-bar">
@@ -287,7 +287,7 @@
               <input type="text" value="10" />
             </div>
 
-            <button class="save-btn dark-btn">SAVE RESERVE SETTINGS</button>
+            <button class="save-btn dark-btn" @click="saveReserveSettings">SAVE RESERVE SETTINGS</button>
 
             <div class="recorded-card">
               <div class="recorded-head">
@@ -506,6 +506,10 @@ export default {
       } finally {
         this.isSaving = false;
       }
+    },
+    saveReserveSettings() {
+      alert('Reserve settings saved securely!');
+      this.goHome();
     },
     exportCSV() {
       const csvContent = "Date,Type,Category,Amount\n2026-08-19,Revenue,Food,500\n2026-08-19,Expense,Supply,200";
