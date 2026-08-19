@@ -328,7 +328,28 @@
 
     <nav class="bottom-nav" aria-label="Tab navigation">
       <button v-for="tab in navigationTabs" :key="tab.key" :class="['nav-item', { active: activeTab === tab.key }]" @click="goTo(tab.key)">
-        <span class="nav-icon">{{ tab.icon }}</span>
+        <span class="nav-icon">
+          <!-- Home Icon -->
+          <svg v-if="tab.key === 'home'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+          </svg>
+          <!-- Expense Icon -->
+          <svg v-if="tab.key === 'expense'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+          </svg>
+          <!-- Revenue Icon -->
+          <svg v-if="tab.key === 'revenue'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+          <!-- Unexpected Icon -->
+          <svg v-if="tab.key === 'unexpected'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          <!-- Reports Icon -->
+          <svg v-if="tab.key === 'reports'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+          </svg>
+        </span>
         <small>{{ tab.label }}</small>
       </button>
     </nav>
@@ -1072,45 +1093,44 @@ input {
 
 .bottom-nav {
   width: 100%;
-  background: rgba(7, 18, 30, 0.9);
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  background: #ffffff;
+  border-top: 1px solid #eaebec;
   display: flex;
-  justify-content: center;
-  gap: 16px;
+  justify-content: space-around;
   padding: 10px 10px 14px;
 }
 
 .nav-item {
-  width: 52px;
   background: transparent;
   border: none;
-  color: rgba(255, 255, 255, 0.7);
-  padding: 6px 0 2px;
+  color: #9aa5b1;
+  padding: 8px 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
   cursor: pointer;
+  border-radius: 12px;
+  transition: all 0.2s;
 }
 
 .nav-item .nav-icon {
-  font-size: 1rem;
+  font-size: 1.2rem;
   line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .nav-item small {
-  font-size: 0.46rem;
+  font-size: 0.6rem;
+  font-weight: 600;
   letter-spacing: 0.02em;
 }
 
 .nav-item.active {
-  color: #7ee1b0;
-}
-
-.nav-item.active .nav-icon {
-  background: rgba(126, 225, 176, 0.18);
-  border-radius: 6px;
-  padding: 1px 4px;
+  color: #0d8b6d;
+  background: #eefbf5;
 }
 
 @media (max-width: 480px) {
