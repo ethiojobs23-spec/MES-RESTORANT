@@ -133,8 +133,27 @@
               <label>Expense From</label>
               <select v-model="expenseForm.expense_from">
                 <option>Kibe</option>
-                <option>Travel</option>
-                <option>Rent</option>
+                <option>Kororima</option>
+                <option>Gomen</option>
+                <option>Enchet</option>
+                <option>Zeyit</option>
+                <option>Kitel</option>
+                <option>Tikur azmud</option>
+                <option>Absh</option>
+                <option>Kocho</option>
+                <option>Bokolo duket</option>
+                <option>Ayib</option>
+                <option>Bula</option>
+                <option>Siga</option>
+                <option>Chew</option>
+                <option>Wetet</option>
+                <option>Asbeza</option>
+                <option>Tekawe pestal</option>
+                <option>Sramaskeja wechi</option>
+                <option>Yeserategna demoz</option>
+                <option>Gebi yekurs ena yemisa</option>
+                <option>Gedi yirat</option>
+                <option>Total gebi</option>
               </select>
             </div>
 
