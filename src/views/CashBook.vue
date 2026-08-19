@@ -597,7 +597,7 @@ export default {
   display: flex;
   flex-direction: column;
   color: #15314f;
-  width: 100vw;
+  width: 100%;
   overflow-x: hidden;
 }
 
@@ -615,8 +615,8 @@ export default {
 }
 
 .app-card {
+  flex: 1;
   width: 100%;
-  max-width: 100%;
   min-height: 100vh;
   background: #f3f2f2;
   border-radius: 0;

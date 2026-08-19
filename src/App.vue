@@ -97,6 +97,8 @@ export default {
 html, body {
   margin: 0;
   min-height: 100%;
+  width: 100%;
+  overflow-x: hidden;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   background: #0c1d31;
 }
