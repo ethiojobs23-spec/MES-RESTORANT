@@ -108,7 +108,10 @@
 
               <ul>
                 <li v-for="tx in allTransactions.slice(0, 3)" :key="tx.id">
-                  <span>{{ tx.title }}</span>
+                  <div style="display: flex; flex-direction: column; gap: 2px;">
+                    <span>{{ tx.title }}</span>
+                    <small style="color: #9aa5b1; font-size: 0.55rem;" v-if="tx.note || tx.customer_note">{{ tx.note || tx.customer_note }}</small>
+                  </div>
                   <strong :class="{ negative: tx.isExpense, positive: !tx.isExpense }">
                     {{ tx.isExpense ? '-' : '+' }}{{ tx.amount }} ETB
                   </strong>
@@ -313,7 +316,10 @@
                 <li v-for="tx in allTransactions" :key="tx.id">
                   <div style="display: flex; flex-direction: column; gap: 2px;">
                     <span>{{ tx.title }}</span>
-                    <small style="color: #9aa5b1; font-size: 0.55rem;">{{ new Date(tx.date).toLocaleDateString() }}</small>
+                    <small style="color: #9aa5b1; font-size: 0.55rem;">
+                      {{ new Date(tx.date).toLocaleDateString() }} 
+                      <span v-if="tx.note || tx.customer_note"> &bull; {{ tx.note || tx.customer_note }}</span>
+                    </small>
                   </div>
                   <strong :class="{ negative: tx.isExpense, positive: !tx.isExpense }">
                     {{ tx.isExpense ? '-' : '+' }}{{ tx.amount }} ETB
