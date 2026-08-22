@@ -361,6 +361,29 @@
               </div>
             </div>
 
+            <div class="chart-section" style="margin-top: 16px;">
+              <div class="field-group radio-group" style="margin-bottom: 10px;">
+                <div class="chip-row">
+                  <button :class="['chip', { active: reportPeriod === 'Weekly' }]" @click="reportPeriod = 'Weekly'">Weekly</button>
+                  <button :class="['chip', { active: reportPeriod === 'Monthly' }]" @click="reportPeriod = 'Monthly'">Monthly</button>
+                  <button :class="['chip', { active: reportPeriod === 'Yearly' }]" @click="reportPeriod = 'Yearly'">Yearly</button>
+                </div>
+              </div>
+              <div class="css-chart">
+                <div class="chart-col" v-for="(col, i) in chartData" :key="i">
+                  <div class="chart-bars">
+                    <div class="bar expense-bar" :style="{ height: col.expenseHeight + '%' }" :title="col.expense + ' ETB'"></div>
+                    <div class="bar revenue-bar" :style="{ height: col.revenueHeight + '%' }" :title="col.revenue + ' ETB'"></div>
+                  </div>
+                  <div class="chart-label">{{ col.label }}</div>
+                </div>
+              </div>
+              <div class="chart-legend">
+                <span class="legend-item"><span class="legend-color revenue-color"></span> Revenue</span>
+                <span class="legend-item"><span class="legend-color expense-color"></span> Expense</span>
+              </div>
+            </div>
+
             <div class="export-box">
               <button class="export-btn" @click="exportCSV">Export to CSV Spreadsheet</button>
               <button class="export-btn light-btn" @click="exportJSON">Download Complete Backup (.json)</button>
@@ -408,6 +431,7 @@ export default {
   name: 'CashBook',
   data() {
     return {
+      reportPeriod: 'Weekly',
       editingExpenseId: null,
       modalType: null,
       expenses: [],
@@ -454,6 +478,58 @@ export default {
       if (path === '/reports') return 'reports'
       if (path === '/ledger') return 'ledger'
       return 'home'
+    },
+    chartData() {
+      let rawData = [];
+      const now = new Date();
+      
+      if (this.reportPeriod === 'Weekly') {
+        for (let i = 6; i >= 0; i--) {
+          const d = new Date();
+          d.setDate(d.getDate() - i);
+          const dateStr = d.toISOString().split('T')[0];
+          const label = d.toLocaleDateString('en-US', { weekday: 'short' });
+          
+          const rev = this.revenues.filter(r => r.date && r.date.startsWith(dateStr)).reduce((s, r) => s + parseFloat(r.total_revenue || 0), 0);
+          const exp = this.expenses.filter(e => e.date && e.date.startsWith(dateStr)).reduce((s, e) => s + parseFloat(e.amount || 0), 0);
+          
+          rawData.push({ label, revenue: rev, expense: exp });
+        }
+      } else if (this.reportPeriod === 'Monthly') {
+        const currMonth = now.toISOString().slice(0, 7);
+        const weeks = [
+          { label: 'W1', start: 1, end: 7 },
+          { label: 'W2', start: 8, end: 14 },
+          { label: 'W3', start: 15, end: 21 },
+          { label: 'W4', start: 22, end: 31 },
+        ];
+        rawData = weeks.map(w => {
+          let rev = 0; let exp = 0;
+          for (let day = w.start; day <= w.end; day++) {
+             const ds = `${currMonth}-${day.toString().padStart(2, '0')}`;
+             rev += this.revenues.filter(r => r.date && r.date.startsWith(ds)).reduce((s, r) => s + parseFloat(r.total_revenue || 0), 0);
+             exp += this.expenses.filter(e => e.date && e.date.startsWith(ds)).reduce((s, e) => s + parseFloat(e.amount || 0), 0);
+          }
+          return { label: w.label, revenue: rev, expense: exp };
+        });
+      } else {
+        const currYear = now.getFullYear();
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        rawData = months.map((m, i) => {
+          const monthStr = `${currYear}-${(i+1).toString().padStart(2, '0')}`;
+          const rev = this.revenues.filter(r => r.date && r.date.startsWith(monthStr)).reduce((s, r) => s + parseFloat(r.total_revenue || 0), 0);
+          const exp = this.expenses.filter(e => e.date && e.date.startsWith(monthStr)).reduce((s, e) => s + parseFloat(e.amount || 0), 0);
+          return { label: m, revenue: rev, expense: exp };
+        });
+      }
+      
+      const maxVal = Math.max(...rawData.flatMap(d => [d.revenue, d.expense]), 1);
+      
+      return rawData.map(d => ({
+        ...d,
+        revenueHeight: (d.revenue / maxVal) * 100,
+        expenseHeight: (d.expense / maxVal) * 100
+      }));
     },
     allTransactions() {
       const exp = this.expenses.map(e => ({ ...e, isExpense: true, title: e.expense_from, amount: e.amount, dateObj: new Date(e.created_at) }))
@@ -1235,6 +1311,87 @@ input {
   background: #f9fafb;
   border-color: #e1e7ee;
   color: #45556b;
+}
+
+.css-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 140px;
+  background: white;
+  border: 1px solid #edf0f5;
+  border-radius: 12px;
+  padding: 10px 10px 0;
+  margin-bottom: 8px;
+}
+
+.chart-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  flex: 1;
+  max-width: 32px;
+}
+
+.chart-bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+  width: 100%;
+  height: 100px;
+  margin-bottom: 4px;
+}
+
+.bar {
+  width: 10px;
+  border-radius: 3px 3px 0 0;
+  min-height: 2px;
+  transition: height 0.3s ease;
+}
+
+.revenue-bar {
+  background: #1aa87d;
+}
+
+.expense-bar {
+  background: #d95555;
+}
+
+.chart-label {
+  font-size: 0.45rem;
+  color: #647083;
+  text-align: center;
+}
+
+.chart-legend {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.55rem;
+  color: #45556b;
+}
+
+.legend-color {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+.revenue-color {
+  background: #1aa87d;
+}
+
+.expense-color {
+  background: #d95555;
 }
 
 .bottom-nav {
