@@ -39,6 +39,26 @@ export default async function handler(req, res) {
     }
   }
 
-  res.setHeader('Allow', ['GET', 'POST']);
+  if (req.method === 'PUT') {
+    try {
+      const { id, date, product_service, quantity, unit_price, customer_note } = req.body;
+      
+      const updatedRevenue = await sql`
+        UPDATE revenues 
+        SET date = ${date}, product_service = ${product_service}, quantity = ${quantity}, unit_price = ${unit_price}, customer_note = ${customer_note}
+        WHERE id = ${id}
+        RETURNING *
+      `;
+      
+      if (updatedRevenue.length === 0) {
+        return res.status(404).json({ error: 'Revenue not found' });
+      }
+      return res.status(200).json(updatedRevenue[0]);
+    } catch (error) {
+      return res.status(500).json({ error: 'Failed to update revenue', details: error.message });
+    }
+  }
+
+  res.setHeader('Allow', ['GET', 'POST', 'PUT']);
   res.status(405).end(`Method ${req.method} Not Allowed`);
 }

@@ -116,7 +116,7 @@
                     <strong :class="{ negative: tx.isExpense, positive: !tx.isExpense }">
                       {{ tx.isExpense ? '-' : '+' }}{{ tx.amount }} ETB
                     </strong>
-                    <button v-if="tx.isExpense" @click="editTransaction(tx)" style="background: transparent; border: none; font-size: 0.6rem; color: #1a7a5b; cursor: pointer;">
+                    <button @click="editTransaction(tx)" style="background: transparent; border: none; font-size: 0.6rem; color: #1a7a5b; cursor: pointer;">
                       ✏️
                     </button>
                   </div>
@@ -203,7 +203,7 @@
           <div v-else-if="activeTab === 'revenue'" class="view-panel form-panel">
             <div class="form-header">
               <button class="form-icon-btn">＋</button>
-              <h2>Record Revenue</h2>
+              <h2>{{ editingRevenueId ? 'Edit Revenue' : 'Record Revenue' }}</h2>
               <button class="cancel-link" @click="goHome">Cancel</button>
             </div>
 
@@ -246,7 +246,7 @@
             </div>
 
             <button class="save-btn" @click="saveRevenue" :disabled="isSaving">
-              {{ isSaving ? 'SAVING...' : 'SAVE REVENUE' }}
+              {{ isSaving ? 'SAVING...' : (editingRevenueId ? 'UPDATE REVENUE' : 'SAVE REVENUE') }}
             </button>
           </div>
 
@@ -330,7 +330,7 @@
                     <strong :class="{ negative: tx.isExpense, positive: !tx.isExpense }">
                       {{ tx.isExpense ? '-' : '+' }}{{ tx.amount }} ETB
                     </strong>
-                    <button v-if="tx.isExpense" @click="editTransaction(tx)" style="background: transparent; border: none; font-size: 0.6rem; color: #1a7a5b; cursor: pointer;">
+                    <button @click="editTransaction(tx)" style="background: transparent; border: none; font-size: 0.6rem; color: #1a7a5b; cursor: pointer;">
                       ✏️
                     </button>
                   </div>
@@ -433,6 +433,7 @@ export default {
     return {
       reportPeriod: 'Weekly',
       editingExpenseId: null,
+      editingRevenueId: null,
       modalType: null,
       expenses: [],
       revenues: [],
@@ -550,15 +551,15 @@ export default {
     },
     todayRevenue() {
       const todayStr = new Date().toISOString().split('T')[0]
-      return this.revenues.filter(r => r.date.split('T')[0] === todayStr).reduce((sum, r) => sum + parseFloat(r.total_revenue || 0), 0)
+      return this.revenues.filter(r => r.date && r.date.split('T')[0] === todayStr).reduce((sum, r) => sum + parseFloat(r.total_revenue || 0), 0)
     },
     todayExpense() {
       const todayStr = new Date().toISOString().split('T')[0]
-      return this.expenses.filter(e => e.date.split('T')[0] === todayStr).reduce((sum, e) => sum + parseFloat(e.amount || 0), 0)
+      return this.expenses.filter(e => e.date && e.date.split('T')[0] === todayStr).reduce((sum, e) => sum + parseFloat(e.amount || 0), 0)
     },
     todayUnexpected() {
       const todayStr = new Date().toISOString().split('T')[0]
-      return this.expenses.filter(e => e.date.split('T')[0] === todayStr && e.expense_type === 'Unexpected').reduce((sum, e) => sum + parseFloat(e.amount || 0), 0)
+      return this.expenses.filter(e => e.date && e.date.split('T')[0] === todayStr && e.expense_type === 'Unexpected').reduce((sum, e) => sum + parseFloat(e.amount || 0), 0)
     },
     reserveProgress() {
       return Math.min(100, Math.round((this.reserveSettings.current / this.reserveSettings.target) * 100)) || 0;
@@ -588,12 +589,20 @@ export default {
       this.$router.push('/')
       this.modalType = null
       this.editingExpenseId = null
+      this.editingRevenueId = null
       this.expenseForm = {
         date: new Date().toISOString().split('T')[0],
         expense_from: 'Kibe',
         amount: '',
         expense_type: 'Planned Expense',
         note: ''
+      }
+      this.revenueForm = {
+        date: new Date().toISOString().split('T')[0],
+        product_service: 'General Sales',
+        quantity: 1,
+        unit_price: '',
+        customer_note: ''
       }
     },
     openModal(type) {
@@ -613,7 +622,16 @@ export default {
         };
         this.goTo('expense');
       } else {
-        alert("Editing revenues is not yet supported in this view.");
+        this.editingRevenueId = tx.id;
+        this.revenueForm = {
+          id: tx.id,
+          date: tx.date ? tx.date.split('T')[0] : new Date().toISOString().split('T')[0],
+          product_service: tx.product_service,
+          quantity: tx.quantity,
+          unit_price: tx.unit_price,
+          customer_note: tx.customer_note || ''
+        };
+        this.goTo('revenue');
       }
     },
     async fetchData() {
@@ -655,16 +673,15 @@ export default {
       this.isSaving = true;
       try {
         const API_BASE = 'https://mesrestorant.vercel.app';
+        const method = this.editingRevenueId ? 'PUT' : 'POST';
         await fetch(`${API_BASE}/api/revenues`, {
-          method: 'POST',
+          method: method,
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(this.revenueForm)
         });
-        alert('Revenue saved successfully!');
-        this.revenueForm.unit_price = '';
-        this.revenueForm.customer_note = '';
-        this.fetchData();
+        alert(this.editingRevenueId ? 'Revenue updated successfully!' : 'Revenue saved successfully!');
         this.goHome();
+        this.fetchData();
       } catch (err) {
         alert('Error saving revenue.');
       } finally {
