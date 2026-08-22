@@ -1039,9 +1039,7 @@ input {
   padding-right: 8px;
 }
 
-.input-wrap input,
-select,
-input {
+.input-wrap input {
   border: none;
   background: transparent;
   outline: none;
