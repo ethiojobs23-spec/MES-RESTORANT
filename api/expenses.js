@@ -43,7 +43,27 @@ export default async function handler(req, res) {
     }
   }
 
+  if (req.method === 'PUT') {
+    try {
+      const { id, date, expense_from, amount, expense_type, note } = req.body;
+      
+      const updatedExpense = await sql`
+        UPDATE expenses 
+        SET date = ${date}, expense_from = ${expense_from}, amount = ${amount}, expense_type = ${expense_type}, note = ${note}
+        WHERE id = ${id}
+        RETURNING *
+      `;
+      
+      if (updatedExpense.length === 0) {
+        return res.status(404).json({ error: 'Expense not found' });
+      }
+      return res.status(200).json(updatedExpense[0]);
+    } catch (error) {
+      return res.status(500).json({ error: 'Failed to update expense', details: error.message });
+    }
+  }
+
   // Handle unsupported HTTP methods
-  res.setHeader('Allow', ['GET', 'POST']);
+  res.setHeader('Allow', ['GET', 'POST', 'PUT']);
   res.status(405).end(`Method ${req.method} Not Allowed`);
 }

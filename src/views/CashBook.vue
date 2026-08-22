@@ -112,9 +112,14 @@
                     <span>{{ tx.title }}</span>
                     <small style="color: #9aa5b1; font-size: 0.55rem;" v-if="tx.note || tx.customer_note">{{ tx.note || tx.customer_note }}</small>
                   </div>
-                  <strong :class="{ negative: tx.isExpense, positive: !tx.isExpense }">
-                    {{ tx.isExpense ? '-' : '+' }}{{ tx.amount }} ETB
-                  </strong>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <strong :class="{ negative: tx.isExpense, positive: !tx.isExpense }">
+                      {{ tx.isExpense ? '-' : '+' }}{{ tx.amount }} ETB
+                    </strong>
+                    <button v-if="tx.isExpense" @click="editTransaction(tx)" style="background: transparent; border: none; font-size: 0.6rem; color: #1a7a5b; cursor: pointer;">
+                      ✏️
+                    </button>
+                  </div>
                 </li>
                 <li v-if="allTransactions.length === 0" class="empty-state">No recent transactions.</li>
               </ul>
@@ -124,7 +129,7 @@
           <div v-else-if="activeTab === 'expense'" class="view-panel form-panel">
             <div class="form-header">
               <button class="form-icon-btn">＋</button>
-              <h2>Record Expense</h2>
+              <h2>{{ editingExpenseId ? 'Edit Expense' : 'Record Expense' }}</h2>
               <button class="cancel-link" @click="goHome">Cancel</button>
             </div>
 
@@ -191,7 +196,7 @@
             </div>
 
             <button class="save-btn" @click="saveExpense" :disabled="isSaving">
-              {{ isSaving ? 'SAVING...' : 'SAVE EXPENSE' }}
+              {{ isSaving ? 'SAVING...' : (editingExpenseId ? 'UPDATE EXPENSE' : 'SAVE EXPENSE') }}
             </button>
           </div>
 
@@ -321,9 +326,14 @@
                       <span v-if="tx.note || tx.customer_note"> &bull; {{ tx.note || tx.customer_note }}</span>
                     </small>
                   </div>
-                  <strong :class="{ negative: tx.isExpense, positive: !tx.isExpense }">
-                    {{ tx.isExpense ? '-' : '+' }}{{ tx.amount }} ETB
-                  </strong>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <strong :class="{ negative: tx.isExpense, positive: !tx.isExpense }">
+                      {{ tx.isExpense ? '-' : '+' }}{{ tx.amount }} ETB
+                    </strong>
+                    <button v-if="tx.isExpense" @click="editTransaction(tx)" style="background: transparent; border: none; font-size: 0.6rem; color: #1a7a5b; cursor: pointer;">
+                      ✏️
+                    </button>
+                  </div>
                 </li>
                 <li v-if="allTransactions.length === 0" class="empty-state">No transactions yet.</li>
               </ul>
@@ -398,6 +408,7 @@ export default {
   name: 'CashBook',
   data() {
     return {
+      editingExpenseId: null,
       modalType: null,
       expenses: [],
       revenues: [],
@@ -500,10 +511,34 @@ export default {
     goHome() {
       this.$router.push('/')
       this.modalType = null
+      this.editingExpenseId = null
+      this.expenseForm = {
+        date: new Date().toISOString().split('T')[0],
+        expense_from: 'Kibe',
+        amount: '',
+        expense_type: 'Planned Expense',
+        note: ''
+      }
     },
     openModal(type) {
       this.modalType = type
       this.goTo(type)
+    },
+    editTransaction(tx) {
+      if (tx.isExpense) {
+        this.editingExpenseId = tx.id;
+        this.expenseForm = {
+          id: tx.id,
+          date: tx.date ? tx.date.split('T')[0] : new Date().toISOString().split('T')[0],
+          expense_from: tx.expense_from,
+          amount: tx.amount,
+          expense_type: tx.expense_type,
+          note: tx.note || ''
+        };
+        this.goTo('expense');
+      } else {
+        alert("Editing revenues is not yet supported in this view.");
+      }
     },
     async fetchData() {
       try {
@@ -524,16 +559,15 @@ export default {
       this.isSaving = true;
       try {
         const API_BASE = 'https://mesrestorant.vercel.app';
+        const method = this.editingExpenseId ? 'PUT' : 'POST';
         await fetch(`${API_BASE}/api/expenses`, {
-          method: 'POST',
+          method: method,
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(this.expenseForm)
         });
-        alert('Expense saved successfully!');
-        this.expenseForm.amount = '';
-        this.expenseForm.note = '';
-        this.fetchData();
+        alert(this.editingExpenseId ? 'Expense updated successfully!' : 'Expense saved successfully!');
         this.goHome();
+        this.fetchData();
       } catch (err) {
         alert('Error saving expense.');
       } finally {
